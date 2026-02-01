@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  /* Dark slate / indigo */
+  --primary-dark: #0b1020;     /* app background */
+  --secondary-dark: #0f172a;   /* panels */
+  --card-bg: #121a2f;          /* cards */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text-primary: #ffffff;
+  --text-secondary: #a9b4d0;
+  --border: #26314b;
+  /* primary accent (used by Tailwind: theme.colors.primary) */
+  --accent: #8b5cf6;
+  --accent-rgb: 139 92 246;
+  --sky-rgb: 14 165 233;
+  --success-rgb: 34 197 94;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(900px 520px at 15% -10%, rgb(var(--accent-rgb) / 0.26), transparent 60%),
+    radial-gradient(900px 520px at 95% 10%, rgb(var(--sky-rgb) / 0.14), transparent 55%),
+    radial-gradient(900px 520px at 90% 110%, rgb(var(--success-rgb) / 0.10), transparent 60%),
+    var(--primary-dark);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
