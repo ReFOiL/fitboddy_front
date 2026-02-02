@@ -19,19 +19,20 @@ export function SelectField(props: {
     <SelectPrimitive.Root value={props.value} onValueChange={props.onValueChange} disabled={props.disabled}>
       <SelectPrimitive.Trigger
         className={cn(
-          'inline-flex h-11 w-full items-center justify-between rounded-md border border-border px-3 text-sm text-foreground',
-          // “фон”/glass эффект для всех селектов
-          'bg-secondary/30 backdrop-blur',
-          'shadow-[0_10px_30px_rgba(0,0,0,0.20)]',
+          'inline-flex h-11 w-full items-center justify-between rounded-md border border-border/40 px-3 text-sm text-foreground',
+          // непрозрачная поверхность
+          'bg-control',
+          'shadow-[0_10px_26px_rgba(0,0,0,0.30)]',
           'transition-colors duration-200 ease-out',
-          'hover:border-border/90 hover:bg-secondary/45',
-          'focus:outline-none focus:ring-2 focus:ring-primary/60',
+          'hover:border-border/60 hover:bg-control',
+          'focus:outline-none focus:ring-2 focus:ring-primary/50',
           'disabled:cursor-not-allowed disabled:opacity-50',
           'cursor-pointer',
           props.triggerClassName,
           props.className,
         )}
         aria-label={props.placeholder}
+        style={{ backgroundColor: 'var(--surface-control)' }}
       >
         <SelectPrimitive.Value placeholder={props.placeholder} />
         <SelectPrimitive.Icon className="text-secondary-foreground/70 transition-colors duration-200">
@@ -44,11 +45,12 @@ export function SelectField(props: {
           position="popper"
           sideOffset={8}
           className={cn(
-            'z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border p-1 text-foreground shadow-lg',
-            // фон выпадашки
-            'bg-secondary/70 backdrop-blur',
+            'z-50 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border/40 p-1 text-foreground shadow-lg',
+            // фон выпадашки (непрозрачный)
+            'bg-card',
             props.contentClassName,
           )}
+          style={{ backgroundColor: 'var(--surface-popover)' }}
         >
           <SelectPrimitive.Viewport className="p-1">
             {props.options.map((opt) => (
@@ -59,9 +61,9 @@ export function SelectField(props: {
                   'relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-8 pr-2 text-sm outline-none',
                   'transition-colors duration-150',
                   // заметный hover/highlight
-                  'hover:bg-primary/20 hover:text-foreground',
-                  'data-[highlighted]:bg-primary/22 data-[highlighted]:text-foreground',
-                  'data-[state=checked]:bg-secondary/40',
+                  'hover:bg-secondary hover:text-foreground',
+                  'data-[highlighted]:bg-secondary data-[highlighted]:text-foreground',
+                  'data-[state=checked]:bg-secondary',
                 )}
               >
                 <span className="absolute left-2 inline-flex h-4 w-4 items-center justify-center">

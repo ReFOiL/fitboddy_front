@@ -15,7 +15,7 @@ export const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn('fixed inset-0 z-50 bg-black/60 backdrop-blur-sm', className)}
+    className={cn('fixed inset-0 z-50 bg-black/70', className)}
     {...props}
   />
 ))
@@ -30,16 +30,17 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-background p-4 text-foreground shadow-xl',
+        'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-4 text-foreground shadow-xl',
         className,
       )}
+      style={{ backgroundColor: 'var(--surface-popover)' }}
       {...props}
     >
       {children}
       <DialogClose asChild>
         <button
           type="button"
-          className="absolute right-3 top-3 rounded-md p-2 text-secondary-foreground/80 hover:bg-secondary/60 hover:text-foreground"
+          className="absolute right-3 top-3 rounded-md p-2 text-secondary-foreground/80 hover:bg-secondary hover:text-foreground"
           aria-label="Close"
         >
           <X className="h-4 w-4" />

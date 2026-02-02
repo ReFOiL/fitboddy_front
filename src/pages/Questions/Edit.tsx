@@ -94,7 +94,7 @@ export function QuestionEditPage() {
             <div>
               <span className="text-secondary-foreground/80">type:</span> <span className="font-mono">{question.answer_type}</span>
             </div>
-            <div className="whitespace-pre-wrap rounded-md border border-border bg-background/40 p-3">
+            <div className="whitespace-pre-wrap rounded-md border border-border bg-secondary p-3">
               {question.text}
             </div>
           </div>

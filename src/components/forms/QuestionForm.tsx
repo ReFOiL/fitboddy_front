@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Resolver } from 'react-hook-form'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
 import { listQuestions, queryKeys } from '../../api'
-import type { CustomQuestionCreate } from '../../types/question'
+import type { CustomQuestionCreate, CustomQuestionOut } from '../../types/question'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
@@ -59,6 +59,10 @@ const formSchema = z
 export type QuestionFormValues = CustomQuestionCreate
 type QuestionFormData = z.output<typeof formSchema>
 
+function isSystemQuestionKey(key: string) {
+  return key.startsWith('system:')
+}
+
 function parseTags(text: string): string[] {
   return text
     .split(',')
@@ -72,13 +76,30 @@ export function QuestionForm(props: {
   isSubmitting?: boolean
   onSubmit: (values: QuestionFormValues) => Promise<void>
 }) {
+  const minOrderQuery = useQuery<CustomQuestionOut[], unknown, number>({
+    queryKey: queryKeys.questions.all,
+    queryFn: listQuestions,
+    networkMode: 'always',
+    select: (questions: CustomQuestionOut[]) => {
+      const systemMax = Math.max(
+        0,
+        ...questions
+          .filter((q) => typeof q.key === 'string' && isSystemQuestionKey(q.key))
+          .map((q) => (typeof q.order === 'number' ? q.order : 0)),
+      )
+      return systemMax + 1
+    },
+  })
+
+  const minCustomOrder = minOrderQuery.data ?? 1
+
   const form = useForm<QuestionFormData>({
     // zodResolver типизируется через input схемы и может конфликтовать с output при preprocess;
     // здесь нам важнее стабильная типизация формы и payload.
     resolver: zodResolver(formSchema) as unknown as Resolver<QuestionFormData>,
     defaultValues: {
       key: props.defaultValues?.key ?? '',
-      order: props.defaultValues?.order ?? 0,
+      order: Math.max(minCustomOrder, props.defaultValues?.order ?? 0),
       text: props.defaultValues?.text ?? '',
       answer_type: props.defaultValues?.answer_type ?? 'text',
       options: props.defaultValues?.options ?? [],
@@ -91,6 +112,16 @@ export function QuestionForm(props: {
       tagsText: props.defaultValues?.tags ? props.defaultValues.tags.join(', ') : '',
     },
   })
+
+  useEffect(() => {
+    const current = form.getValues('order')
+    const dirty = Boolean(form.formState.dirtyFields.order)
+    if (dirty) return
+    if (typeof current !== 'number') return
+    if (current < minCustomOrder) {
+      form.setValue('order', minCustomOrder, { shouldDirty: false, shouldTouch: false, shouldValidate: true })
+    }
+  }, [form, minCustomOrder])
 
   const answerType = useWatch({ control: form.control, name: 'answer_type' })
   const previewKey = useWatch({ control: form.control, name: 'key' })
@@ -157,9 +188,18 @@ export function QuestionForm(props: {
     <form
       className="grid gap-4 lg:grid-cols-2"
       onSubmit={form.handleSubmit(async (raw) => {
+        // Жёстко гарантируем: кастомные вопросы начинаются после системных.
+        if (raw.order < minCustomOrder) {
+          form.setError('order', {
+            type: 'min',
+            message: `Минимальный order: ${minCustomOrder} (после системных вопросов)`,
+          })
+          return
+        }
+
         const values: QuestionFormValues = {
           key: raw.key.trim(),
-          order: raw.order ?? 0,
+          order: Math.max(minCustomOrder, raw.order ?? 0),
           text: raw.text,
           answer_type: raw.answer_type,
           options: isChoice ? raw.options : null,
@@ -186,14 +226,20 @@ export function QuestionForm(props: {
           </div>
           <div className="space-y-1">
             <label className="text-sm">Order</label>
-            <Input type="number" inputMode="numeric" {...form.register('order')} />
+            <Input type="number" inputMode="numeric" min={minCustomOrder} {...form.register('order')} />
+            <div className="text-xs text-secondary-foreground/75">
+              Минимум: <span className="font-mono">{minCustomOrder}</span> (после системных)
+            </div>
+            {form.formState.errors.order?.message ? (
+              <div className="text-sm text-destructive">{form.formState.errors.order.message}</div>
+            ) : null}
           </div>
         </div>
 
         <div className="space-y-1">
           <label className="text-sm">Текст</label>
           <textarea
-            className="min-h-[110px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+            className="min-h-[110px] w-full resize-y rounded-md border border-border bg-control px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
             {...form.register('text')}
           />
           <div className="flex items-center justify-between text-xs text-secondary-foreground/80">
@@ -362,7 +408,7 @@ export function QuestionForm(props: {
           </div>
         ) : null}
 
-        <Button type="submit" size="lg" className="w-full" disabled={Boolean(props.isSubmitting)}>
+        <Button type="submit" size="lg" variant="cta" className="w-full" disabled={Boolean(props.isSubmitting)}>
           {props.mode === 'create' ? 'Создать' : 'Сохранить'}
         </Button>
         </CardContent>

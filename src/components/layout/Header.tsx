@@ -11,7 +11,7 @@ export function Header() {
   const { logout } = useAuth()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-secondary/60 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-card">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <div className="font-semibold tracking-tight">Fitboddy Admin</div>

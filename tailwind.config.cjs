@@ -5,27 +5,32 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        border: 'var(--border)',
-        background: 'var(--primary-dark)',
-        foreground: 'var(--text-primary)',
+        border: 'rgb(var(--border-rgb) / <alpha-value>)',
+        background: 'rgb(var(--background-rgb) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground-rgb) / <alpha-value>)',
+        control: 'rgb(var(--control-rgb) / <alpha-value>)',
         card: {
-          DEFAULT: 'var(--card-bg)',
-          foreground: 'var(--text-primary)',
+          DEFAULT: 'rgb(var(--card-rgb) / <alpha-value>)',
+          foreground: 'rgb(var(--foreground-rgb) / <alpha-value>)',
         },
         primary: {
-          DEFAULT: 'var(--accent)',
+          DEFAULT: 'rgb(var(--accent-rgb) / <alpha-value>)',
           foreground: '#ffffff',
         },
         secondary: {
-          DEFAULT: 'var(--secondary-dark)',
-          foreground: 'var(--text-secondary)',
+          DEFAULT: 'rgb(var(--secondary-rgb) / <alpha-value>)',
+          foreground: 'rgb(var(--secondary-foreground-rgb) / <alpha-value>)',
         },
         destructive: {
-          DEFAULT: 'var(--danger)',
+          DEFAULT: 'rgb(var(--danger-rgb) / <alpha-value>)',
           foreground: '#ffffff',
         },
+        warning: {
+          DEFAULT: 'rgb(var(--warning-rgb) / <alpha-value>)',
+          foreground: 'rgb(var(--background-rgb) / <alpha-value>)',
+        },
         success: {
-          DEFAULT: 'var(--success)',
+          DEFAULT: 'rgb(var(--success-rgb) / <alpha-value>)',
           foreground: '#ffffff',
         },
       },

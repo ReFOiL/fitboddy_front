@@ -214,200 +214,231 @@ export function QuestionsPage() {
     toggleSelectAll()
   }
 
+  const stats = useMemo(() => {
+    const all = ordered
+    const total = all.length
+    const active = all.filter((q) => q.is_active).length
+    const inactive = total - active
+    const system = all.filter((q) => isSystemQuestionKey(q.key)).length
+    const custom = total - system
+    return { total, active, inactive, system, custom }
+  }, [ordered])
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Вопросы</h2>
-          <div className="text-sm text-secondary-foreground/80">Управление анкетой: порядок, активность, редактирование</div>
-        </div>
-        <Button onClick={() => navigate('/questions/new')}>
-          <Plus className="h-4 w-4" />
-          Создать
-        </Button>
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="text-sm text-secondary-foreground/80">
-            Всего: <span className="font-medium text-foreground">{rows.length}</span>
-            {selectedCount > 0 ? (
-              <>
-                {' '}
-                · Выбрано: <span className="font-medium text-foreground">{selectedCount}</span>
-              </>
-            ) : null}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={selectAllInView}
-              disabled={rows.filter((r) => !isSystemQuestionKey(r.key)).length === 0}
-            >
-              {allSelected ? 'Снять выделение' : 'Выбрать всё'}
-            </Button>
-
-            <Button
-              type="button"
-              variant={reorderMode ? 'default' : 'secondary'}
-              onClick={() => setReorderMode((v) => !v)}
-              disabled={!canReorder}
-              title={!canReorder ? 'Сортировка доступна только без поиска и фильтров' : 'Перемещение порядка'}
-            >
-              {reorderMode ? 'Готово' : 'Порядок'}
-            </Button>
-          </div>
-        </div>
-
-        {selectedCount > 0 ? (
-          <div className="mb-3 flex flex-col gap-2 rounded-lg border border-border/70 bg-background/40 p-3 text-sm lg:flex-row lg:items-center lg:justify-between">
-            <div className="text-secondary-foreground/80">
-              Выбрано: <span className="font-medium text-foreground">{selectedCount}</span>
+      {/* Hero */}
+      <Card className="overflow-hidden" style={{ backgroundColor: 'var(--surface-section)' }}>
+        <CardContent className="p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold">Вопросы</h2>
+              <div className="text-sm text-secondary-foreground/80">
+                Управление анкетой: порядок, активность, редактирование
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                disabled={bulkSetActive.isPending}
-                onClick={() => bulkSetActive.mutate({ ids: selectedEditableIds, isActive: true })}
-              >
-                Активировать
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button variant="cta" onClick={() => navigate('/questions/new')}>
+                <Plus className="h-4 w-4" />
+                Создать
               </Button>
               <Button
                 type="button"
                 variant="secondary"
-                disabled={bulkSetActive.isPending}
-                onClick={() => bulkSetActive.mutate({ ids: selectedEditableIds, isActive: false })}
+                onClick={() => questionsQuery.refetch()}
+                disabled={questionsQuery.isFetching}
+                title="Обновить"
               >
-                Деактивировать
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setSelectedIds(new Set())}
-              >
-                Очистить
+                <RefreshCcw className="h-4 w-4" />
+                Обновить
               </Button>
             </div>
           </div>
-        ) : null}
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-1 items-center gap-2">
-            <Input
-              placeholder="Поиск: текст / key / категория / теги"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <Button
-              type="button"
-              onClick={() => questionsQuery.refetch()}
-              disabled={questionsQuery.isFetching}
-              title="Обновить"
-              variant="secondary"
-              size="lg"
-            >
-              <RefreshCcw className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Select
-              value={typeFilter}
-              onValueChange={(v) => setTypeFilter(v as AnswerType | 'all')}
-              placeholder="Все типы"
-              options={[
-                { value: 'all', label: 'Все типы' },
-                { value: 'text', label: 'text' },
-                { value: 'number', label: 'number' },
-                { value: 'single_choice', label: 'single_choice' },
-                { value: 'multiple_choice', label: 'multiple_choice' },
-                { value: 'boolean', label: 'boolean' },
-              ]}
-            />
-
-            <Select
-              value={categoryFilter}
-              onValueChange={(v) => setCategoryFilter(v)}
-              placeholder="Все категории"
-              options={[
-                { value: 'all', label: 'Все категории' },
-                { value: '__none__', label: 'Без категории' },
-                ...categoryOptions.map((c) => ({ value: c, label: c })),
-              ]}
-            />
-
-            <Button
-              type="button"
-              variant={onlyActive === null ? 'default' : 'secondary'}
-              size="lg"
-              onClick={() => setOnlyActive(null)}
-            >
-              Все
-            </Button>
-            <Button
-              type="button"
-              variant={onlyActive === true ? 'default' : 'secondary'}
-              size="lg"
-              onClick={() => setOnlyActive(true)}
-            >
-              Активные
-            </Button>
-            <Button
-              type="button"
-              variant={onlyActive === false ? 'default' : 'secondary'}
-              size="lg"
-              onClick={() => setOnlyActive(false)}
-            >
-              Неактивные
-            </Button>
-          </div>
-        </div>
-
-        {!canReorder ? (
-          <div className="mt-3 rounded-md border border-border/70 bg-background/40 px-3 py-2 text-xs text-secondary-foreground/80">
-            Drag&drop порядка доступен только без поиска и фильтров.
-          </div>
-        ) : null}
-
-        {/* Cards: везде. Делаем 1 карточку на строку + выше карточка. */}
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-          <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-            <div className="mt-4 grid grid-cols-1 gap-3">
-          {questionsQuery.isLoading ? (
-            <div className="col-span-full rounded-lg border border-border/70 bg-background/40 p-3 text-sm text-secondary-foreground/80">
-              Загрузка...
+          <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">ВСЕГО</div>
+              <div className="mt-1 text-2xl font-semibold">{stats.total}</div>
             </div>
-          ) : questionsQuery.isError ? (
-            <div className="col-span-full rounded-lg border border-border/70 bg-background/40 p-3 text-sm text-destructive">
-              Ошибка загрузки. Проверь `admin token` и доступность бэкенда.
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">АКТИВНЫЕ</div>
+              <div className="mt-1 text-2xl font-semibold">{stats.active}</div>
             </div>
-          ) : rows.length === 0 ? (
-            <div className="col-span-full rounded-lg border border-border/70 bg-background/40 p-3 text-sm text-secondary-foreground/80">
-              Ничего не найдено.
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">НЕАКТИВНЫЕ</div>
+              <div className="mt-1 text-2xl font-semibold">{stats.inactive}</div>
             </div>
-          ) : (
-            rows.map((q) => (
-              <QuestionCard
-                key={q.id}
-                question={q}
-                reorderMode={reorderMode}
-                isSelected={selectedIds.has(q.id)}
-                onToggleSelect={() => toggleSelectOne(q.id)}
-                onEdit={() => navigate(`/questions/${q.id}/edit`)}
-                onToggleActive={() => toggleActive.mutate(q)}
-                onDeactivate={() => setConfirmDeactivate(q)}
-                disabled={isSystemQuestionKey(q.key)}
-                isBusy={toggleActive.isPending || deactivate.isPending || reorder.isPending}
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">СИСТЕМНЫЕ</div>
+              <div className="mt-1 text-2xl font-semibold">{stats.system}</div>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">КАСТОМНЫЕ</div>
+              <div className="mt-1 text-2xl font-semibold">{stats.custom}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Filters / Actions */}
+      <Card style={{ backgroundColor: 'var(--surface-section)' }}>
+        <CardContent className="p-4">
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-start">
+            <div className="space-y-3">
+              <Input
+                placeholder="Поиск: текст / key / категория / теги"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
-            ))
-          )}
+
+              <div className="grid gap-2 md:grid-cols-2">
+                <Select
+                  value={typeFilter}
+                  onValueChange={(v) => setTypeFilter(v as AnswerType | 'all')}
+                  placeholder="Все типы"
+                  options={[
+                    { value: 'all', label: 'Все типы' },
+                    { value: 'text', label: 'text' },
+                    { value: 'number', label: 'number' },
+                    { value: 'single_choice', label: 'single_choice' },
+                    { value: 'multiple_choice', label: 'multiple_choice' },
+                    { value: 'boolean', label: 'boolean' },
+                  ]}
+                />
+
+                <Select
+                  value={categoryFilter}
+                  onValueChange={(v) => setCategoryFilter(v)}
+                  placeholder="Все категории"
+                  options={[
+                    { value: 'all', label: 'Все категории' },
+                    { value: '__none__', label: 'Без категории' },
+                    ...categoryOptions.map((c) => ({ value: c, label: c })),
+                  ]}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <Button type="button" variant={onlyActive === null ? 'default' : 'secondary'} onClick={() => setOnlyActive(null)}>
+                  Все
+                </Button>
+                <Button type="button" variant={onlyActive === true ? 'default' : 'secondary'} onClick={() => setOnlyActive(true)}>
+                  Активные
+                </Button>
+                <Button type="button" variant={onlyActive === false ? 'default' : 'secondary'} onClick={() => setOnlyActive(false)}>
+                  Неактивные
+                </Button>
+              </div>
             </div>
-          </SortableContext>
-        </DndContext>
+
+            <div className="grid gap-2">
+              <div className="rounded-xl border border-border bg-secondary p-3 text-sm">
+                <div className="text-secondary-foreground/80">
+                  В отображении: <span className="font-medium text-foreground">{rows.length}</span>
+                  {selectedCount > 0 ? (
+                    <>
+                      {' '}
+                      · Выбрано: <span className="font-medium text-foreground">{selectedCount}</span>
+                    </>
+                  ) : null}
+                </div>
+                <div className="mt-3 grid gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={selectAllInView}
+                    disabled={rows.filter((r) => !isSystemQuestionKey(r.key)).length === 0}
+                  >
+                    {allSelected ? 'Снять выделение' : 'Выбрать всё'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={reorderMode ? 'default' : 'secondary'}
+                    onClick={() => setReorderMode((v) => !v)}
+                    disabled={!canReorder}
+                    title={!canReorder ? 'Сортировка доступна только без поиска и фильтров' : 'Перемещение порядка'}
+                  >
+                    {reorderMode ? 'Готово' : 'Порядок'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {selectedCount > 0 ? (
+            <div className="mt-3 flex flex-col gap-2 rounded-xl border border-border bg-secondary p-3 text-sm md:flex-row md:items-center md:justify-between">
+              <div className="text-secondary-foreground/80">
+                Выбрано: <span className="font-medium text-foreground">{selectedCount}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  disabled={bulkSetActive.isPending}
+                  onClick={() => bulkSetActive.mutate({ ids: selectedEditableIds, isActive: true })}
+                >
+                  Активировать
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={bulkSetActive.isPending}
+                  onClick={() => bulkSetActive.mutate({ ids: selectedEditableIds, isActive: false })}
+                >
+                  Деактивировать
+                </Button>
+                <Button type="button" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+                  Очистить
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {!canReorder ? (
+            <div className="mt-3 rounded-xl border border-border bg-secondary px-3 py-2 text-xs text-secondary-foreground/80">
+              Drag&drop порядка доступен только без поиска и фильтров.
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      {/* List */}
+      <Card style={{ backgroundColor: 'var(--surface-section)' }}>
+        <CardContent className="p-4">
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+              <div className="grid grid-cols-1 gap-3">
+                {questionsQuery.isLoading ? (
+                  <div className="rounded-xl border border-border bg-secondary p-3 text-sm text-secondary-foreground/80">
+                    Загрузка...
+                  </div>
+                ) : questionsQuery.isError ? (
+                  <div className="rounded-xl border border-border bg-secondary p-3 text-sm text-destructive">
+                    Ошибка загрузки. Проверь `admin token` и доступность бэкенда.
+                  </div>
+                ) : rows.length === 0 ? (
+                  <div className="rounded-xl border border-border bg-secondary p-3 text-sm text-secondary-foreground/80">
+                    Ничего не найдено.
+                  </div>
+                ) : (
+                  rows.map((q) => (
+                    <QuestionCard
+                      key={q.id}
+                      question={q}
+                      reorderMode={reorderMode}
+                      isSelected={selectedIds.has(q.id)}
+                      onToggleSelect={() => toggleSelectOne(q.id)}
+                      onEdit={() => navigate(`/questions/${q.id}/edit`)}
+                      onToggleActive={() => toggleActive.mutate(q)}
+                      onDeactivate={() => setConfirmDeactivate(q)}
+                      disabled={isSystemQuestionKey(q.key)}
+                      isBusy={toggleActive.isPending || deactivate.isPending || reorder.isPending}
+                    />
+                  ))
+                )}
+              </div>
+            </SortableContext>
+          </DndContext>
         </CardContent>
       </Card>
 
@@ -425,7 +456,7 @@ export function QuestionsPage() {
               <div className="text-sm text-secondary-foreground/80">
                 key: <span className="font-mono">{confirmDeactivate.key}</span>
               </div>
-              <div className="rounded-md border border-border bg-secondary/30 p-3 text-sm whitespace-pre-wrap">
+              <div className="rounded-md border border-border bg-secondary p-3 text-sm whitespace-pre-wrap">
                 {confirmDeactivate.text}
               </div>
             </div>
@@ -498,14 +529,25 @@ function QuestionCard(props: {
   const content = (
     <Card
       className={[
-        // без translate -> без “дёрганья”
         'group',
+        'relative overflow-hidden',
         'transition-[box-shadow,border-color,background-color] duration-200 ease-out',
-        'hover:border-primary/30 hover:bg-card/80 hover:shadow-[0_18px_60px_rgba(0,0,0,0.32)]',
+        'hover:border-primary/55',
+        'hover:shadow-[0_22px_72px_rgb(var(--accent-rgb)_/_0.20)]',
+        'hover:ring-1 hover:ring-primary/35',
+        'focus-within:ring-2 focus-within:ring-primary/45',
+        props.isSelected ? 'ring-2 ring-primary/45 border-primary/55 bg-card' : '',
         props.reorderMode ? 'ring-1 ring-primary/30' : '',
       ].join(' ')}
     >
       <CardContent className="p-5">
+        {/* Акцент слева: активность/система */}
+        <div
+          className={[
+            'pointer-events-none absolute left-0 top-0 h-full w-1.5',
+            props.disabled ? 'bg-border' : q.is_active ? 'bg-primary' : 'bg-warning',
+          ].join(' ')}
+        />
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0 flex-1">
             {/* Мета — сверху */}
@@ -528,53 +570,41 @@ function QuestionCard(props: {
             </div>
 
             {/* Вопрос — главный фокус */}
-            <div
+            <button
+              type="button"
+              onClick={() => {
+                if (props.disabled) return
+                if (props.reorderMode) return
+                props.onEdit()
+              }}
               className={[
-                'mt-4 relative overflow-hidden rounded-2xl border border-primary/25 p-5',
-                'bg-gradient-to-br from-secondary/25 via-secondary/10 to-primary/10',
-                'transition-[border-color,box-shadow,background-color] duration-300 ease-out',
-                // акцент всегда видимый (не только hover)
-                'border-primary/45 bg-secondary/20',
-                'shadow-[0_12px_44px_rgb(var(--accent-rgb)_/_0.16)]',
-                // hover — лишь лёгкое усиление
-                'group-hover:border-primary/55 group-hover:shadow-[0_14px_54px_rgb(var(--accent-rgb)_/_0.22)]',
-                'motion-reduce:transition-none',
+                'mt-4 w-full text-left',
+                'rounded-2xl border border-border bg-control p-5',
+                'transition-[border-color,box-shadow] duration-200 ease-out',
+                'hover:border-primary/45 hover:shadow-[0_14px_48px_rgba(0,0,0,0.25)]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
               ].join(' ')}
             >
-              {/* акцентная полоса слева */}
-              <div className="pointer-events-none absolute left-0 top-0 h-full w-1.5 bg-gradient-to-b from-primary/70 via-sky-500/25 to-emerald-500/15 opacity-80" />
-
-              {/* мягкое свечение на hover */}
-              <div
-                className={[
-                  'pointer-events-none absolute -inset-10 opacity-70 blur-2xl',
-                  'transition-opacity duration-300 ease-out',
-                  'group-hover:opacity-100',
-                  'motion-reduce:transition-none',
-                  // radial glow
-                  'bg-[radial-gradient(circle_at_30%_20%,rgb(var(--accent-rgb)_/_0.30),transparent_55%),radial-gradient(circle_at_85%_65%,rgb(var(--sky-rgb)_/_0.18),transparent_55%)]',
-                ].join(' ')}
-              />
-
-              <div className="relative whitespace-pre-wrap text-lg font-semibold leading-snug text-foreground md:text-xl">
+              <div className="whitespace-pre-wrap text-lg font-semibold leading-snug text-foreground md:text-xl">
                 {q.text}
               </div>
-            </div>
+              <div className="mt-2 text-xs text-secondary-foreground/80">Нажми, чтобы редактировать</div>
+            </button>
 
             <div className="mt-3 space-y-3">
               {/* Теги */}
-              <div className="rounded-2xl border border-border/60 bg-secondary/12 p-4">
+              <div className="rounded-2xl border border-border/60 bg-secondary p-4">
                 <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">ТЕГИ</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {hasTags ? (
                     <>
                       {q.tags.slice(0, 10).map((t) => (
-                        <span key={t} className="rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm">
+                        <span key={t} className="rounded-full border border-border bg-secondary px-3 py-1 text-sm">
                           {t}
                         </span>
                       ))}
                       {q.tags.length > 10 ? (
-                        <span className="rounded-full border border-border bg-secondary/15 px-3 py-1 text-sm text-secondary-foreground/80">
+                        <span className="rounded-full border border-border bg-secondary px-3 py-1 text-sm text-secondary-foreground/80">
                           +{q.tags.length - 10} ещё
                         </span>
                       ) : null}
@@ -586,7 +616,7 @@ function QuestionCard(props: {
               </div>
 
               {/* Варианты / Ответ */}
-              <div className="rounded-2xl border border-border/60 bg-secondary/12 p-4">
+              <div className="rounded-2xl border border-border/60 bg-secondary p-4">
                 <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">
                   {showOptions ? 'ВАРИАНТЫ' : 'ОТВЕТ'}
                 </div>
@@ -595,22 +625,22 @@ function QuestionCard(props: {
                   <div className="mt-2 flex flex-wrap gap-2">
                     {q.answer_type === 'boolean' ? (
                       <>
-                        <span className="rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm">Да</span>
-                        <span className="rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm">Нет</span>
+                        <span className="rounded-full border border-border bg-secondary px-3 py-1 text-sm">Да</span>
+                        <span className="rounded-full border border-border bg-secondary px-3 py-1 text-sm">Нет</span>
                       </>
                     ) : (
                       <>
                         {(q.options ?? []).slice(0, 8).map((opt) => (
                           <span
                             key={`${opt.value}:${opt.label}`}
-                            className="rounded-full border border-border bg-secondary/30 px-3 py-1 text-sm"
+                            className="rounded-full border border-border bg-secondary px-3 py-1 text-sm"
                             title={opt.value}
                           >
                             {opt.label || opt.value}
                           </span>
                         ))}
                         {(q.options ?? []).length > 8 ? (
-                          <span className="rounded-full border border-border bg-secondary/15 px-3 py-1 text-sm text-secondary-foreground/80">
+                          <span className="rounded-full border border-border bg-secondary px-3 py-1 text-sm text-secondary-foreground/80">
                             +{(q.options ?? []).length - 8} ещё
                           </span>
                         ) : null}
@@ -622,7 +652,7 @@ function QuestionCard(props: {
                     {q.answer_type === 'text' ? (
                       <div className="space-y-2">
                         <div className="text-sm text-secondary-foreground/80">Свободный ввод текста</div>
-                        <div className="h-11 rounded-md border border-border/70 bg-background/10 px-3 py-3 text-sm text-secondary-foreground/70">
+                        <div className="h-11 rounded-md border border-border/70 bg-secondary px-3 py-3 text-sm text-secondary-foreground/70">
                           Поле ввода…
                         </div>
                         {q.pattern ? (
@@ -638,8 +668,8 @@ function QuestionCard(props: {
                           <span>min: {q.min_value ?? '—'}</span>
                           <span>max: {q.max_value ?? '—'}</span>
                         </div>
-                        <div className="h-2 w-full rounded-full bg-background/10">
-                          <div className="h-2 w-2/5 rounded-full bg-primary/50" />
+                        <div className="h-2 w-full rounded-full bg-secondary">
+                          <div className="h-2 w-2/5 rounded-full bg-primary" />
                         </div>
                       </div>
                     ) : (
@@ -701,7 +731,7 @@ function QuestionCard(props: {
                     {q.is_active ? 'Выключить' : 'Включить'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="text-destructive focus:bg-destructive/15 focus:text-destructive"
+                    className="text-destructive focus:bg-secondary focus:text-destructive"
                     disabled={props.disabled}
                     onSelect={props.onDeactivate}
                   >

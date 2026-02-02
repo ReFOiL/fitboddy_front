@@ -8,10 +8,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        secondary: 'border border-border bg-secondary/30 hover:bg-secondary/55 hover:border-border/90',
-        ghost: 'hover:bg-secondary/40',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        default: 'bg-primary text-primary-foreground hover:brightness-95',
+        secondary: 'border border-border bg-secondary hover:bg-card hover:border-border/90',
+        ghost: 'hover:bg-secondary',
+        destructive: 'bg-destructive text-destructive-foreground hover:brightness-95',
+        // CTA: единый акцент (без второго “чужого” цвета)
+        cta: [
+          'text-primary-foreground',
+          'shadow-[0_14px_40px_rgb(var(--accent-rgb)_/_0.18)]',
+          'hover:brightness-95',
+          'active:brightness-90',
+        ].join(' '),
       },
       size: {
         sm: 'h-9 px-3',
@@ -31,8 +38,24 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants>
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
-    return <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  ({ className, variant, size, style, ...props }, ref) => {
+    const computedStyle =
+      variant === 'cta'
+        ? {
+            backgroundImage:
+              style?.backgroundImage ?? 'linear-gradient(90deg, rgb(var(--accent-rgb) / 0.95), rgb(var(--sky-rgb) / 0.75))',
+            ...style,
+          }
+        : style
+
+    return (
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size }), className)}
+        style={computedStyle}
+        {...props}
+      />
+    )
   },
 )
 Button.displayName = 'Button'

@@ -5,6 +5,7 @@ import { MainLayout } from './components/layout/MainLayout'
 import { DashboardPage } from './pages/Dashboard.tsx'
 import { LoginPage } from './pages/Login.tsx'
 import { QuestionCreatePage, QuestionEditPage, QuestionsPage } from './pages/Questions/index.ts'
+import { UserDetailPage, UsersPage } from './pages/Users'
 
 export function App() {
   return (
@@ -23,6 +24,8 @@ export function App() {
         <Route path="/questions" element={<QuestionsPage />} />
         <Route path="/questions/new" element={<QuestionCreatePage />} />
         <Route path="/questions/:id/edit" element={<QuestionEditPage />} />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/users/:id" element={<UserDetailPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

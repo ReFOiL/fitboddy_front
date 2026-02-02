@@ -1,21 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  /* Dark slate / indigo */
-  --primary-dark: #0b1020;     /* app background */
-  --secondary-dark: #0f172a;   /* panels */
-  --card-bg: #121a2f;          /* cards */
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --text-primary: #ffffff;
-  --text-secondary: #a9b4d0;
-  --border: #26314b;
-  /* primary accent (used by Tailwind: theme.colors.primary) */
-  --accent: #8b5cf6;
-  --accent-rgb: 139 92 246;
-  --sky-rgb: 14 165 233;
-  --success-rgb: 34 197 94;
+  /* Fitboddy Admin — Deep Navy (BG) + Teal/Violet surfaces */
+  --primary-dark: #0a0f1e;     /* app background */
+  /* Source colors (если где-то ещё используются напрямую) */
+  --secondary-dark: #0b182c;   /* panels (темнее) */
+  --card-bg: #081527;          /* cards (ещё темнее) */
+  --control-bg: #081321;       /* controls (почти фон) */
+  --border: #233a57;
+
+  --text-primary: #f3f7ff;
+  --text-secondary: #9fb0cd;
+
+  /* Accents */
+  --accent: #22d3ee;           /* cyan */
+  --warning: #fbbf24;          /* amber */
+  --success: #34d399;          /* emerald */
+  --danger: #fb7185;           /* rose */
+
+  /* RGB tokens (для tailwind opacity: /80, bg-…/10 и т.п.) */
+  --background-rgb: 10 15 30;          /* #0a0f1e */
+  --secondary-rgb: 11 24 44;           /* #0b182c */
+  --card-rgb: 8 21 39;                 /* #081527 */
+  --control-rgb: 8 19 33;              /* #081321 */
+  --border-rgb: 35 58 87;              /* #233a57 */
+  --foreground-rgb: 243 247 255;       /* #f3f7ff */
+  --secondary-foreground-rgb: 159 176 205; /* #9fb0cd */
+
+  --accent-rgb: 34 211 238;            /* #22d3ee */
+  --warning-rgb: 251 191 36;           /* #fbbf24 */
+  --success-rgb: 52 211 153;           /* #34d399 */
+  --danger-rgb: 251 113 133;           /* #fb7185 */
+
+  /* extra */
+  --sky-rgb: 96 165 250;               /* #60a5fa */
+
+  /* =========
+     Surfaces (ЕДИНЫЙ источник правды для компонентов)
+     ========= */
+  /* Современная админка: одна тональность + разные уровни яркости */
+  --surface-page: #0b1220;     /* (2) общий блок страницы */
+  --surface-section: #0f1a2b;  /* (3) секции/панели */
+  --surface-card: #0d1624;     /* (4) карточки (темнее секций) */
+  --surface-control: #0a1320;  /* инпуты/селекты (самый тёмный) */
+  --surface-popover: #0d1624;  /* поповеры как карточки */
 }
 
 html,
@@ -27,9 +55,9 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(900px 520px at 15% -10%, rgb(var(--accent-rgb) / 0.26), transparent 60%),
-    radial-gradient(900px 520px at 95% 10%, rgb(var(--sky-rgb) / 0.14), transparent 55%),
-    radial-gradient(900px 520px at 90% 110%, rgb(var(--success-rgb) / 0.10), transparent 60%),
+    radial-gradient(980px 560px at 12% -10%, rgb(var(--accent-rgb) / 0.22), transparent 62%),
+    radial-gradient(820px 520px at 92% 12%, rgb(var(--accent-rgb) / 0.10), transparent 58%),
+    radial-gradient(820px 520px at 88% 112%, rgb(var(--sky-rgb) / 0.10), transparent 60%),
     var(--primary-dark);
   color: var(--text-primary);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;

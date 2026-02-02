@@ -19,10 +19,11 @@ export const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        // glass-style, как у Select
-        'z-50 min-w-44 overflow-hidden rounded-md border border-border bg-secondary/80 p-1 text-foreground shadow-lg backdrop-blur',
+        // непрозрачная поверхность
+        'z-50 min-w-44 overflow-hidden rounded-md border border-border bg-card p-1 text-foreground shadow-lg',
         className,
       )}
+      style={{ backgroundColor: 'var(--surface-popover)' }}
       {...props}
     />
   </DropdownMenuPrimitive.Portal>
@@ -39,8 +40,8 @@ export const DropdownMenuItem = React.forwardRef<
       'relative flex cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-2 text-sm outline-none',
       'transition-colors duration-150',
       // заметный hover/highlight
-      'hover:bg-primary/20 hover:text-foreground',
-      'data-[highlighted]:bg-primary/22 data-[highlighted]:text-foreground',
+      'hover:bg-secondary hover:text-foreground',
+      'data-[highlighted]:bg-secondary data-[highlighted]:text-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       inset && 'pl-8',
       className,

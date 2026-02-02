@@ -5,7 +5,7 @@ import { navItems } from '../../lib/constants'
 
 export function MobileNav() {
   return (
-    <nav className="mx-auto grid max-w-7xl grid-cols-5 gap-1 px-2 py-2">
+    <nav className="mx-auto grid max-w-7xl grid-cols-6 gap-1 px-2 py-2">
       {navItems.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
@@ -13,7 +13,7 @@ export function MobileNav() {
           className={({ isActive }) =>
             cn(
               'flex h-12 flex-col items-center justify-center gap-1 rounded-md text-[10px] transition-colors',
-              isActive ? 'bg-primary text-primary-foreground' : 'text-secondary-foreground/80 hover:bg-secondary/50',
+              isActive ? 'bg-primary text-primary-foreground' : 'text-secondary-foreground/80 hover:bg-secondary',
             )
           }
         >
