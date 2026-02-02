@@ -1,0 +1,11 @@
+services:
+  fitboddy-admin:
+    build:
+      context: .
+      args:
+        # ВАЖНО: Vite подхватывает это на этапе build (import.meta.env.VITE_API_URL)
+        VITE_API_URL: ${VITE_API_URL-}
+    ports:
+      - "1729:80"
+    restart: unless-stopped
+
