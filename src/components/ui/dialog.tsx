@@ -55,6 +55,10 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
   return <div className={cn('space-y-1 pr-8', className)} {...props} />
 }
 
+export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('flex justify-end gap-2 pt-4', className)} {...props} />
+}
+
 export function DialogTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
   return <DialogPrimitive.Title className={cn('text-lg font-semibold', className)} {...props} />
 }

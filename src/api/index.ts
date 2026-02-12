@@ -1,5 +1,10 @@
 export * from './client'
 export * from './questions'
 export * from './users'
+export * from './workoutTemplates'
+export * from './exercises'
+export * from './muscles'
+export * from './contraindications'
+export * from './uploads'
 export * from './queryKeys'
 

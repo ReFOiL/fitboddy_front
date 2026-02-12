@@ -6,6 +6,8 @@ import { DashboardPage } from './pages/Dashboard.tsx'
 import { LoginPage } from './pages/Login.tsx'
 import { QuestionCreatePage, QuestionEditPage, QuestionsPage } from './pages/Questions/index.ts'
 import { UserDetailPage, UsersPage } from './pages/Users'
+import { WorkoutCreatePage, WorkoutEditPage, WorkoutsPage } from './pages/Workouts'
+import { ExerciseCreatePage, ExerciseEditPage, ExercisesPage } from './pages/Exercises'
 
 export function App() {
   return (
@@ -26,6 +28,12 @@ export function App() {
         <Route path="/questions/:id/edit" element={<QuestionEditPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/users/:id" element={<UserDetailPage />} />
+        <Route path="/workouts" element={<WorkoutsPage />} />
+        <Route path="/workouts/new" element={<WorkoutCreatePage />} />
+        <Route path="/workouts/:id/edit" element={<WorkoutEditPage />} />
+        <Route path="/exercises" element={<ExercisesPage />} />
+        <Route path="/exercises/new" element={<ExerciseCreatePage />} />
+        <Route path="/exercises/:id/edit" element={<ExerciseEditPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

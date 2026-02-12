@@ -52,6 +52,17 @@ body,
   height: 100%;
 }
 
+/* Убираем нативные стрелочки — используем свой компонент NumberInput */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 body {
   margin: 0;
   background:
