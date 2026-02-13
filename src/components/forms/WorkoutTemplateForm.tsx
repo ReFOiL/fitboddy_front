@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Resolver } from 'react-hook-form'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { listExercises, queryKeys } from '../../api'
+import { listExercises, queryKeys, updateWorkoutExercisesOrder } from '../../api'
 import type { WorkoutDifficulty, WorkoutTemplateCreate } from '../../types/workout'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
@@ -51,6 +53,10 @@ export function WorkoutTemplateForm(props: {
   defaultValues?: Partial<WorkoutTemplateCreate>
   isSubmitting?: boolean
   onSubmit: (values: WorkoutTemplateFormValues) => Promise<void>
+  /** Id шаблона в режиме редактирования — для вызова ручки смены порядка упражнений */
+  templateId?: number
+  /** Вызывается после успешного обновления порядка через API */
+  onOrderChanged?: () => void
 }) {
   const exercisesQuery = useQuery({
     queryKey: queryKeys.exercises.all,
@@ -81,10 +87,40 @@ export function WorkoutTemplateForm(props: {
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control: form.control,
     name: 'exercises',
   })
+
+  const orderMutation = useMutation({
+    mutationFn: (exerciseIds: number[]) =>
+      props.templateId != null
+        ? updateWorkoutExercisesOrder(props.templateId, exerciseIds)
+        : Promise.reject(new Error('templateId required')),
+    onSuccess: () => {
+      props.onOrderChanged?.()
+      toast.success('Порядок обновлён')
+    },
+    onError: (err: Error) => {
+      toast.error(err?.message ?? 'Не удалось обновить порядок')
+    },
+  })
+
+  const handleMove = (fromIndex: number, toIndex: number) => {
+    const exercises = form.getValues('exercises')
+    const currentIds = exercises.map((e) => e.exercise_id).filter((id) => id > 0)
+    const newIds = [...currentIds]
+    const a = newIds[fromIndex]
+    const b = newIds[toIndex]
+    if (a !== undefined && b !== undefined) {
+      newIds[fromIndex] = b
+      newIds[toIndex] = a
+    }
+    move(fromIndex, toIndex)
+    if (props.templateId != null && newIds.length > 0) {
+      orderMutation.mutate(newIds)
+    }
+  }
 
   const exerciseOptions = [
     { value: '0', label: '— выбери упражнение —' },
@@ -223,7 +259,34 @@ export function WorkoutTemplateForm(props: {
             <div className="space-y-2">
               {fields.map((f, idx) => (
                 <Card key={f.id} className="border-border/60 bg-secondary/10 p-3">
-                  <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <div className="flex shrink-0 flex-col gap-0.5">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleMove(idx, idx - 1)}
+                        disabled={idx === 0 || orderMutation.isPending}
+                        title="Поднять выше"
+                        aria-label="Поднять выше"
+                      >
+                        <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleMove(idx, idx + 1)}
+                        disabled={idx === fields.length - 1 || orderMutation.isPending}
+                        title="Опустить ниже"
+                        aria-label="Опустить ниже"
+                      >
+                        <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+                      </Button>
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-3">
                     {/* Строка 1: упражнение */}
                     <div className="space-y-1">
                       <div className="text-xs text-secondary-foreground/75">Упражнение</div>
@@ -330,6 +393,7 @@ export function WorkoutTemplateForm(props: {
                       >
                         Удалить
                       </Button>
+                    </div>
                     </div>
                   </div>
                 </Card>

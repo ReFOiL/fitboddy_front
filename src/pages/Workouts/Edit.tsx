@@ -87,11 +87,15 @@ export function WorkoutEditPage() {
 
       <WorkoutTemplateForm
         mode="edit"
+        templateId={id}
         defaultValues={defaultValues}
         onSubmit={async (values) => {
           await update.mutateAsync(values)
         }}
         isSubmitting={update.isPending}
+        onOrderChanged={async () => {
+          await queryClient.invalidateQueries({ queryKey: queryKeys.workoutTemplates.detail(id) })
+        }}
       />
     </div>
   )

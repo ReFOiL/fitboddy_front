@@ -30,6 +30,17 @@ export async function updateWorkoutTemplate(
   return data
 }
 
+export async function updateWorkoutExercisesOrder(
+  templateId: number,
+  exerciseIds: number[]
+) {
+  const { data } = await apiClient.put<WorkoutTemplateOut>(
+    `${BASE}/${templateId}/exercises/order`,
+    { exercise_ids: exerciseIds }
+  )
+  return data
+}
+
 export async function deleteWorkoutTemplate(templateId: number) {
   const { data } = await apiClient.delete<{ message: string }>(`${BASE}/${templateId}`)
   return data
