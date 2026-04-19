@@ -34,6 +34,7 @@ export type CustomQuestionOut = {
   pattern: string | null
   is_required: boolean
   is_active: boolean
+  is_system?: boolean
   category: string | null
   tags: string[]
   created_at: string

@@ -22,6 +22,10 @@ function isSystemQuestionKey(key: string) {
   return key.startsWith('system:')
 }
 
+function isSystemQuestion(q: CustomQuestionOut) {
+  return q.is_system ?? isSystemQuestionKey(q.key)
+}
+
 type AnswerType = CustomQuestionOut['answer_type']
 
 export function QuestionsPage() {
@@ -133,7 +137,7 @@ export function QuestionsPage() {
   }, [ordered])
 
   const selectableRowIds = useMemo(
-    () => rows.filter((r) => !isSystemQuestionKey(r.key)).map((r) => r.id),
+    () => rows.filter((r) => !isSystemQuestion(r)).map((r) => r.id),
     [rows],
   )
 
@@ -186,16 +190,16 @@ export function QuestionsPage() {
     const moved = rows[oldIndex]
     const target = rows[newIndex]
     if (!moved || !target) return
-    if (isSystemQuestionKey(moved.key)) return
+    if (isSystemQuestion(moved)) return
 
     // Нельзя ставить "на позицию" системного вопроса — ищем ближайший не-системный якорь
     let anchor = target
-    if (isSystemQuestionKey(anchor.key)) {
+    if (isSystemQuestion(anchor)) {
       anchor =
-        rows.slice(newIndex + 1).find((r) => !isSystemQuestionKey(r.key)) ??
-        rows.slice(0, newIndex).reverse().find((r) => !isSystemQuestionKey(r.key)) ??
+        rows.slice(newIndex + 1).find((r) => !isSystemQuestion(r)) ??
+        rows.slice(0, newIndex).reverse().find((r) => !isSystemQuestion(r)) ??
         anchor
-      if (isSystemQuestionKey(anchor.key)) return
+      if (isSystemQuestion(anchor)) return
     }
 
     // Локально переставляем (для UX), на бэкенд отправляем новый order = order "точки вставки".
@@ -219,7 +223,7 @@ export function QuestionsPage() {
     const total = all.length
     const active = all.filter((q) => q.is_active).length
     const inactive = total - active
-    const system = all.filter((q) => isSystemQuestionKey(q.key)).length
+    const system = all.filter((q) => isSystemQuestion(q)).length
     const custom = total - system
     return { total, active, inactive, system, custom }
   }, [ordered])
@@ -347,7 +351,7 @@ export function QuestionsPage() {
                     type="button"
                     variant="secondary"
                     onClick={selectAllInView}
-                    disabled={rows.filter((r) => !isSystemQuestionKey(r.key)).length === 0}
+                    disabled={rows.filter((r) => !isSystemQuestion(r)).length === 0}
                   >
                     {allSelected ? 'Снять выделение' : 'Выбрать всё'}
                   </Button>
@@ -431,7 +435,7 @@ export function QuestionsPage() {
                       onEdit={() => navigate(`/questions/${q.id}/edit`)}
                       onToggleActive={() => toggleActive.mutate(q)}
                       onDeactivate={() => setConfirmDeactivate(q)}
-                      disabled={isSystemQuestionKey(q.key)}
+                      disabled={isSystemQuestion(q)}
                       isBusy={toggleActive.isPending || deactivate.isPending || reorder.isPending}
                     />
                   ))
