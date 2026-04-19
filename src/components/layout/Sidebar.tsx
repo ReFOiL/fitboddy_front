@@ -1,16 +1,17 @@
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '../../lib/utils'
-import { navItems } from '../../lib/constants'
+import { useNavItems } from '../../hooks/use-nav-items'
 import { Card, CardContent } from '../ui/card'
 
 export function Sidebar() {
+  const nav = useNavItems()
   return (
     <Card>
       <CardContent className="p-2">
         <div className="px-2 pb-2 text-xs font-medium text-secondary-foreground/80">Разделы</div>
         <div className="flex flex-col gap-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
+          {nav.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

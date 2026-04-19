@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { useAuthStore } from '../stores/auth.store'
@@ -9,10 +11,18 @@ import { Card, CardContent, CardHeader } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 
 const loginSchema = z.object({
-  adminToken: z.string().min(1, 'Введите admin token'),
+  username: z.string().min(1, 'Введите логин'),
+  password: z.string().min(1, 'Введите пароль'),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
+
+type LoginResponse = {
+  access_token: string
+  token_type: string
+  expires_in: number
+  is_superuser: boolean
+}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -20,8 +30,10 @@ export function LoginPage() {
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { adminToken: '' },
+    defaultValues: { username: '', password: '' },
   })
+
+  const baseURL = import.meta.env.VITE_API_URL || ''
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -35,21 +47,41 @@ export function LoginPage() {
             <form
               className="space-y-4"
               onSubmit={form.handleSubmit(async (values) => {
-                // На бэкенде доступ в админку проверяется заголовком `x-admin-token`.
-                setTokens({ adminToken: values.adminToken })
-                navigate('/dashboard', { replace: true })
+                try {
+                  const { data } = await axios.post<LoginResponse>(
+                    `${baseURL}/admin/auth/login`,
+                    {
+                      username: values.username.trim(),
+                      password: values.password,
+                    },
+                    { headers: { 'Content-Type': 'application/json' }, timeout: 15_000 },
+                  )
+                  setTokens({
+                    accessToken: data.access_token,
+                    isSuperuser: data.is_superuser,
+                    username: values.username.trim(),
+                  })
+                  navigate('/dashboard', { replace: true })
+                } catch (err) {
+                  const detail = axios.isAxiosError(err)
+                    ? (err.response?.data as { detail?: string } | undefined)?.detail
+                    : undefined
+                  toast.error(detail ?? 'Не удалось войти')
+                }
               })}
             >
               <div className="space-y-1">
-                <label className="text-sm">Admin token</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  {...form.register('adminToken')}
-                />
-                {form.formState.errors.adminToken?.message ? (
-                  <div className="text-sm text-destructive">{form.formState.errors.adminToken.message}</div>
+                <label className="text-sm">Логин</label>
+                <Input autoComplete="username" {...form.register('username')} />
+                {form.formState.errors.username?.message ? (
+                  <div className="text-sm text-destructive">{form.formState.errors.username.message}</div>
+                ) : null}
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm">Пароль</label>
+                <Input type="password" autoComplete="current-password" {...form.register('password')} />
+                {form.formState.errors.password?.message ? (
+                  <div className="text-sm text-destructive">{form.formState.errors.password.message}</div>
                 ) : null}
               </div>
 
@@ -63,4 +95,3 @@ export function LoginPage() {
     </div>
   )
 }
-

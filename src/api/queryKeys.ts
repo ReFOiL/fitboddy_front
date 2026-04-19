@@ -1,4 +1,7 @@
 export const queryKeys = {
+  adminAccounts: {
+    all: ['adminAccounts'] as const,
+  },
   questions: {
     all: ['questions'] as const,
   },

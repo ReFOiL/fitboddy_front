@@ -1,5 +1,4 @@
-import { BarChart3, Dumbbell, HelpCircle, LayoutDashboard, Settings, Users } from 'lucide-react'
-import { Activity } from 'lucide-react'
+import { Activity, BarChart3, Dumbbell, HelpCircle, LayoutDashboard, Settings, UserCog, Users } from 'lucide-react'
 
 export const navItems = [
   { to: '/dashboard', label: 'Дашборд', icon: LayoutDashboard },
@@ -10,4 +9,7 @@ export const navItems = [
   { to: '/analytics', label: 'Аналитика', icon: BarChart3 },
   { to: '/settings', label: 'Настройки', icon: Settings },
 ] as const
+
+/** Только для суперпользователя (bootstrap из .env). */
+export const superuserNavItems = [{ to: '/admin-accounts', label: 'Админы', icon: UserCog }] as const
 

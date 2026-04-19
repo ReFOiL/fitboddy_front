@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { SuperuserRoute } from './components/SuperuserRoute'
 import { MainLayout } from './components/layout/MainLayout'
 import { DashboardPage } from './pages/Dashboard.tsx'
 import { LoginPage } from './pages/Login.tsx'
@@ -8,6 +9,7 @@ import { QuestionCreatePage, QuestionEditPage, QuestionsPage } from './pages/Que
 import { UserDetailPage, UsersPage } from './pages/Users'
 import { WorkoutCreatePage, WorkoutEditPage, WorkoutsPage } from './pages/Workouts'
 import { ExerciseCreatePage, ExerciseEditPage, ExercisesPage } from './pages/Exercises'
+import { AdminAccountsPage } from './pages/AdminAccounts'
 
 export function App() {
   return (
@@ -34,6 +36,14 @@ export function App() {
         <Route path="/exercises" element={<ExercisesPage />} />
         <Route path="/exercises/new" element={<ExerciseCreatePage />} />
         <Route path="/exercises/:id/edit" element={<ExerciseEditPage />} />
+        <Route
+          path="/admin-accounts"
+          element={
+            <SuperuserRoute>
+              <AdminAccountsPage />
+            </SuperuserRoute>
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

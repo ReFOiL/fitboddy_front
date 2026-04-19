@@ -1,12 +1,18 @@
 import { NavLink } from 'react-router-dom'
 
+import { useNavItems } from '../../hooks/use-nav-items'
 import { cn } from '../../lib/utils'
-import { navItems } from '../../lib/constants'
 
 export function MobileNav() {
+  const nav = useNavItems()
   return (
-    <nav className="mx-auto grid max-w-7xl grid-cols-6 gap-1 px-2 py-2">
-      {navItems.map(({ to, label, icon: Icon }) => (
+    <nav
+      className={cn(
+        'mx-auto grid max-w-7xl gap-1 px-2 py-2',
+        nav.length > 7 ? 'grid-cols-4 sm:grid-cols-8' : 'grid-cols-3 sm:grid-cols-6',
+      )}
+    >
+      {nav.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}

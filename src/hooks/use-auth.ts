@@ -6,10 +6,10 @@ export function useAuth() {
   const logout = useAuthStore((s) => s.logout)
 
   return {
-    isAuthenticated: Boolean(tokens?.adminToken),
+    isAuthenticated: Boolean(tokens?.accessToken),
+    isSuperuser: Boolean(tokens?.isSuperuser),
     tokens,
     setTokens,
     logout,
   }
 }
-
