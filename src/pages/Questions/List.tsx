@@ -237,7 +237,8 @@ export function QuestionsPage() {
             <div className="space-y-1">
               <h2 className="text-xl font-semibold">Вопросы</h2>
               <div className="text-sm text-secondary-foreground/80">
-                Управление анкетой: порядок, активность, редактирование
+                Управление анкетой: порядок, активность, редактирование. Ответы пользователя бот использует для подбора
+                упражнений и месячного плана.
               </div>
             </div>
 

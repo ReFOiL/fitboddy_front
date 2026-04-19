@@ -13,9 +13,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-card">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <div className="font-semibold tracking-tight">Fitboddy Admin</div>
-          <Badge variant="muted">beta</Badge>
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
+          <div className="flex items-center gap-2">
+            <div className="font-semibold tracking-tight">Fitboddy Admin</div>
+            <Badge variant="muted">beta</Badge>
+          </div>
+          <span className="text-xs text-secondary-foreground/75 sm:text-sm">Каталог, анкета, пользователи</span>
         </div>
 
         <Button

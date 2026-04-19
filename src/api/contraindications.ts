@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { ContraindicationOut } from '../types/workout'
+import type { ContraindicationOut } from '../types/exercise'
 
 const BASE = '/api/v1/admin/contraindications'
 

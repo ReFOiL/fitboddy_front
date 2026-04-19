@@ -4,6 +4,7 @@ import { ArrowLeft, RefreshCcw, User } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { getUser, queryKeys } from '../../api'
+import { UserTrainingPlanSection } from './UserTrainingPlanSection'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
@@ -145,6 +146,8 @@ export function UserDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          <UserTrainingPlanSection userId={userQuery.data.id} />
 
           <Card style={{ backgroundColor: 'var(--surface-section)' }}>
             <CardContent className="p-5">

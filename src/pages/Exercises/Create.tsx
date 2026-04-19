@@ -21,9 +21,15 @@ export function ExerciseCreatePage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Новое упражнение</h2>
-        <Button variant="secondary" onClick={() => navigate('/exercises')}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Новое упражнение</h2>
+          <p className="max-w-xl text-sm text-secondary-foreground/85">
+            Поле «Группа для планировщика» влияет на то, как упражнение попадает в недельное расписание вместе с другими
+            позициями каталога.
+          </p>
+        </div>
+        <Button variant="secondary" className="shrink-0 self-start" onClick={() => navigate('/exercises')}>
           Назад
         </Button>
       </div>

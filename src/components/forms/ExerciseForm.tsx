@@ -13,7 +13,8 @@ import {
   queryKeys,
   uploadVideo,
 } from '../../api'
-import type { ExerciseCreate } from '../../types/workout'
+import { WORKOUT_CATEGORY_OPTIONS } from '../../lib/exerciseCategories'
+import type { ExerciseCreate } from '../../types/exercise'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { Input } from '../ui/input'
@@ -24,6 +25,7 @@ const formSchema = z.object({
   description: z.preprocess((v) => (v === '' || v == null ? null : String(v)), z.string().max(1000).nullable()).optional(),
   video_url: z.preprocess((v) => (v === '' || v == null ? null : String(v)), z.string().max(500).nullable()).optional(),
   equipment: z.preprocess((v) => (v === '' || v == null ? null : String(v)), z.string().max(64).nullable()).optional(),
+  workout_category: z.string().min(1).default('full_body'),
   is_cardio: z.coerce.boolean().default(false),
   difficulty: z.coerce.number().int().min(1).max(5).default(1),
   muscle_ids: z.array(z.number().int()).default([]),
@@ -58,6 +60,7 @@ export function ExerciseForm(props: {
       description: props.defaultValues?.description ?? null,
       video_url: props.defaultValues?.video_url ?? null,
       equipment: props.defaultValues?.equipment ?? null,
+      workout_category: props.defaultValues?.workout_category ?? 'full_body',
       is_cardio: props.defaultValues?.is_cardio ?? false,
       difficulty: props.defaultValues?.difficulty ?? 1,
       muscle_ids: props.defaultValues?.muscle_ids ?? [],
@@ -116,6 +119,7 @@ export function ExerciseForm(props: {
           description: raw.description ?? null,
           video_url: raw.video_url ?? null,
           equipment: raw.equipment ?? null,
+          workout_category: raw.workout_category,
           is_cardio: raw.is_cardio,
           difficulty: raw.difficulty,
           muscle_ids: raw.muscle_ids,
@@ -188,6 +192,18 @@ export function ExerciseForm(props: {
               ) : null}
             </div>
             <p className="text-xs text-secondary-foreground/70">Форматы: .mp4, .mov (макс. 50 МБ)</p>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm">Группа для планировщика</label>
+            <Select
+              value={form.watch('workout_category')}
+              onValueChange={(v) => form.setValue('workout_category', v, { shouldDirty: true })}
+              options={WORKOUT_CATEGORY_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+            />
+            <p className="text-xs text-secondary-foreground/70">
+              Используется при сборке месячного плана (верх / низ / кардио и т.д.).
+            </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">

@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { MuscleOut } from '../types/workout'
+import type { MuscleOut } from '../types/exercise'
 
 const BASE = '/api/v1/admin/muscles'
 

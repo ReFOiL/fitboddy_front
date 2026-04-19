@@ -8,10 +8,9 @@ export const queryKeys = {
   users: {
     all: ['users'] as const,
     detail: (userId: number) => ['users', 'detail', userId] as const,
-  },
-  workoutTemplates: {
-    all: ['workoutTemplates'] as const,
-    detail: (id: number) => ['workoutTemplates', 'detail', id] as const,
+    trainingPlanActive: (userId: number) => ['users', userId, 'training-plan', 'active'] as const,
+    trainingPlansList: (userId: number) => ['users', userId, 'training-plans'] as const,
+    trainingPlanDetail: (userId: number, planId: number) => ['users', userId, 'training-plan', planId] as const,
   },
   exercises: {
     all: ['exercises'] as const,

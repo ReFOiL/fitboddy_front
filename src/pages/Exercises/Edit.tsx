@@ -8,7 +8,7 @@ import {
   queryKeys,
   updateExercise,
 } from '../../api'
-import type { ExerciseCreate } from '../../types/workout'
+import type { ExerciseUpdate } from '../../types/exercise'
 import { ExerciseForm, type ExerciseFormValues } from '../../components/forms/ExerciseForm'
 import { Button } from '../../components/ui/button'
 
@@ -26,7 +26,7 @@ export function ExerciseEditPage() {
   })
 
   const update = useMutation({
-    mutationFn: (values: ExerciseCreate) => updateExercise(id, values),
+    mutationFn: (values: ExerciseUpdate) => updateExercise(id, values),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.exercises.all })
       await queryClient.invalidateQueries({ queryKey: queryKeys.exercises.detail(id) })
@@ -60,6 +60,7 @@ export function ExerciseEditPage() {
     description: e.description ?? null,
     video_url: e.video_url ?? null,
     equipment: e.equipment ?? null,
+    workout_category: e.workout_category,
     is_cardio: e.is_cardio,
     difficulty: e.difficulty,
     muscle_ids: e.muscles?.map((m) => m.id) ?? [],
@@ -68,9 +69,15 @@ export function ExerciseEditPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Редактирование: {e.name}</h2>
-        <Button variant="secondary" onClick={() => navigate('/exercises')}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Редактирование: {e.name}</h2>
+          <p className="max-w-xl text-sm text-secondary-foreground/85">
+            Изменения вступают в силу для новых планов; у пользователей с активным планом расписание обновится при
+            следующей пересборке на стороне бота.
+          </p>
+        </div>
+        <Button variant="secondary" className="shrink-0 self-start" onClick={() => navigate('/exercises')}>
           Назад
         </Button>
       </div>

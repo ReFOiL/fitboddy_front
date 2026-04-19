@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Film, MoreHorizontal, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Film, MoreHorizontal, Pencil, Plus, RefreshCcw, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -10,7 +10,8 @@ import {
   listExercises,
   queryKeys,
 } from '../../api'
-import type { ExerciseOut } from '../../types/workout'
+import { WORKOUT_CATEGORY_OPTIONS } from '../../lib/exerciseCategories'
+import type { ExerciseOut } from '../../types/exercise'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
@@ -29,11 +30,13 @@ import {
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu'
 import { Input } from '../../components/ui/input'
+import { Select } from '../../components/ui/select'
 
 export function ExercisesPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [confirmDelete, setConfirmDelete] = useState<ExerciseOut | null>(null)
 
   const exercisesQuery = useQuery({
@@ -51,35 +54,111 @@ export function ExercisesPage() {
     },
   })
 
+  const all = exercisesQuery.data ?? []
+
+  const stats = useMemo(() => {
+    const total = all.length
+    const cardio = all.filter((e) => e.is_cardio).length
+    const withVideo = all.filter((e) => Boolean(e.video_url || e.video_stream_url)).length
+    const categories = new Set(all.map((e) => e.workout_category)).size
+    return { total, cardio, withVideo, categories }
+  }, [all])
+
   const filtered = useMemo(() => {
-    const list = exercisesQuery.data ?? []
+    let list = all
     const q = search.trim().toLowerCase()
-    if (!q) return list
-    return list.filter(
-      (e) =>
-        e.name.toLowerCase().includes(q) ||
-        (e.equipment ?? '').toLowerCase().includes(q) ||
-        e.muscles.some((m) => m.name.toLowerCase().includes(q))
-    )
-  }, [exercisesQuery.data, search])
+    if (q) {
+      list = list.filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          (e.equipment ?? '').toLowerCase().includes(q) ||
+          workoutCategoryLabel(e.workout_category).toLowerCase().includes(q) ||
+          e.muscles.some((m) => m.name.toLowerCase().includes(q))
+      )
+    }
+    if (categoryFilter !== 'all') {
+      list = list.filter((e) => e.workout_category === categoryFilter)
+    }
+    return list
+  }, [all, search, categoryFilter])
+
+  const categorySelectOptions = [
+    { value: 'all', label: 'Все группы' },
+    ...WORKOUT_CATEGORY_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+  ]
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold">Упражнения</h2>
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Поиск по названию, оборудованию, мышцам…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
-          <Button onClick={() => navigate('/exercises/new')}>
-            <Plus className="h-4 w-4" />
-            Создать
-          </Button>
-        </div>
-      </div>
+      <Card className="overflow-hidden" style={{ backgroundColor: 'var(--surface-section)' }}>
+        <CardContent className="p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold">Каталог упражнений</h2>
+              <p className="max-w-2xl text-sm text-secondary-foreground/85">
+                Здесь содержимое, из которого бот собирает план: видео, группа для планировщика, мышцы и
+                противопоказания. После изменений пользователям может понадобиться новый цикл плана (пересборка на
+                стороне бота).
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button variant="cta" onClick={() => navigate('/exercises/new')}>
+                <Plus className="h-4 w-4" />
+                Создать
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => exercisesQuery.refetch()}
+                disabled={exercisesQuery.isFetching}
+                title="Обновить список"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Обновить
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">ВСЕГО</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">{stats.total}</div>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">С ВИДЕО</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">{stats.withVideo}</div>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">КАРДИО</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">{stats.cardio}</div>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary p-3">
+              <div className="text-[11px] font-medium tracking-wide text-secondary-foreground/80">ГРУПП ПЛАНА</div>
+              <div className="mt-1 text-2xl font-semibold tabular-nums">{stats.categories}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card style={{ backgroundColor: 'var(--surface-section)' }}>
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end">
+          <div className="min-w-0 flex-1 space-y-2">
+            <label className="text-xs font-medium text-secondary-foreground/80">Поиск</label>
+            <Input
+              placeholder="Название, оборудование, мышцы, группа…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="w-full space-y-2 sm:w-56">
+            <label className="text-xs font-medium text-secondary-foreground/80">Группа планировщика</label>
+            <Select
+              value={categoryFilter}
+              onValueChange={setCategoryFilter}
+              options={categorySelectOptions}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {exercisesQuery.isLoading && (
         <div className="text-sm text-secondary-foreground/80">Загрузка…</div>
@@ -89,10 +168,42 @@ export function ExercisesPage() {
       )}
       {exercisesQuery.data && filtered.length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-sm text-secondary-foreground/80">
-            {search.trim() ? 'Ничего не найдено' : 'Нет упражнений. Создай первое.'}
+          <CardContent className="space-y-2 py-8 text-center text-sm text-secondary-foreground/80">
+            <div>
+              {search.trim() || categoryFilter !== 'all'
+                ? 'Ничего не найдено по текущим фильтрам.'
+                : 'В каталоге пока нет упражнений — создай первое или запусти сидер на бэкенде.'}
+            </div>
+            {(search.trim() || categoryFilter !== 'all') && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="mx-auto"
+                onClick={() => {
+                  setSearch('')
+                  setCategoryFilter('all')
+                }}
+              >
+                Сбросить фильтры
+              </Button>
+            )}
           </CardContent>
         </Card>
+      )}
+
+      {filtered.length > 0 && (
+        <div className="flex items-center justify-between text-xs text-secondary-foreground/75">
+          <span>
+            Показано <span className="font-medium text-foreground">{filtered.length}</span>
+            {filtered.length !== stats.total ? (
+              <>
+                {' '}
+                из <span className="tabular-nums">{stats.total}</span>
+              </>
+            ) : null}
+          </span>
+        </div>
       )}
 
       {filtered.length > 0 && (
@@ -134,6 +245,10 @@ export function ExercisesPage() {
   )
 }
 
+function workoutCategoryLabel(value: string): string {
+  return WORKOUT_CATEGORY_OPTIONS.find((o) => o.value === value)?.label ?? value
+}
+
 function ExerciseCard(props: {
   exercise: ExerciseOut
   onEdit: () => void
@@ -148,6 +263,7 @@ function ExerciseCard(props: {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="muted">#{e.id}</Badge>
+              <Badge variant="primary">{workoutCategoryLabel(e.workout_category)}</Badge>
               <Badge variant="default">сложность {e.difficulty}</Badge>
               {e.is_cardio && <Badge variant="default">кардио</Badge>}
               {e.equipment ? <Badge variant="muted">{e.equipment}</Badge> : null}
