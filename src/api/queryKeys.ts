@@ -12,6 +12,14 @@ export const queryKeys = {
     trainingPlansList: (userId: number) => ['users', userId, 'training-plans'] as const,
     trainingPlanDetail: (userId: number, planId: number) => ['users', userId, 'training-plan', planId] as const,
   },
+  analytics: {
+    workoutSummary: (filters: {
+      goal?: string
+      level?: string
+      workout_location?: string
+      equipment?: string
+    }) => ['analytics', 'workout-summary', filters] as const,
+  },
   exercises: {
     all: ['exercises'] as const,
     detail: (id: number) => ['exercises', 'detail', id] as const,

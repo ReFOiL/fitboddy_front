@@ -15,7 +15,7 @@ export function MainLayout() {
         </aside>
 
         <main
-          className="min-w-0 flex-1 rounded-2xl border border-border/70 p-3 md:p-4"
+          className="min-w-0 flex-1 rounded-2xl border border-border/80 p-3 shadow-[0_8px_24px_rgba(0,0,0,0.22)] md:p-4"
           style={{ backgroundColor: 'var(--surface-page)' }}
         >
           <Outlet />

@@ -39,11 +39,11 @@
      Surfaces (ЕДИНЫЙ источник правды для компонентов)
      ========= */
   /* Современная админка: одна тональность + разные уровни яркости */
-  --surface-page: #0b1220;     /* (2) общий блок страницы */
-  --surface-section: #0f1a2b;  /* (3) секции/панели */
-  --surface-card: #0d1624;     /* (4) карточки (темнее секций) */
-  --surface-control: #0a1320;  /* инпуты/селекты (самый тёмный) */
-  --surface-popover: #0d1624;  /* поповеры как карточки */
+  --surface-page: #0b1220;
+  --surface-section: #111c2c;
+  --surface-card: #162437;
+  --surface-control: #0d1726;
+  --surface-popover: #18273b;
 }
 
 html,
@@ -66,10 +66,7 @@ input[type="number"] {
 body {
   margin: 0;
   background:
-    radial-gradient(980px 560px at 12% -10%, rgb(var(--accent-rgb) / 0.22), transparent 62%),
-    radial-gradient(820px 520px at 92% 12%, rgb(var(--accent-rgb) / 0.10), transparent 58%),
-    radial-gradient(820px 520px at 88% 112%, rgb(var(--sky-rgb) / 0.10), transparent 60%),
-    var(--primary-dark);
+    linear-gradient(180deg, rgb(var(--background-rgb) / 1) 0%, #091120 100%);
   color: var(--text-primary);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }

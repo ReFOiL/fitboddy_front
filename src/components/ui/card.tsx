@@ -7,12 +7,8 @@ export function Card({ className, style, ...props }: React.HTMLAttributes<HTMLDi
     <div
       className={cn(
         [
-          'rounded-2xl border border-border/40',
-          // ВАЖНО: фон задаём через CSS-var напрямую (а не через bg-card),
-          // чтобы гарантировать применение палитры независимо от сборки tailwind.
-          // мягкий внутренний хайлайт, чтобы card читался как слой
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_12px_34px_rgba(0,0,0,0.35)]',
-          // чуть глубже тень, но без “грязи”
+          'rounded-2xl border border-border/70',
+          'shadow-[0_4px_14px_rgba(0,0,0,0.22)]',
         ].join(' '),
         className,
       )}

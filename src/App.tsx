@@ -9,6 +9,7 @@ import { QuestionCreatePage, QuestionEditPage, QuestionsPage } from './pages/Que
 import { UserDetailPage, UsersPage } from './pages/Users'
 import { ExerciseCreatePage, ExerciseEditPage, ExercisesPage } from './pages/Exercises'
 import { AdminAccountsPage } from './pages/AdminAccounts'
+import { AnalyticsPage } from './pages/Analytics'
 
 export function App() {
   return (
@@ -32,6 +33,7 @@ export function App() {
         <Route path="/exercises" element={<ExercisesPage />} />
         <Route path="/exercises/new" element={<ExerciseCreatePage />} />
         <Route path="/exercises/:id/edit" element={<ExerciseEditPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route
           path="/admin-accounts"
           element={

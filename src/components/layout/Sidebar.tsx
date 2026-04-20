@@ -18,7 +18,7 @@ export function Sidebar() {
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
-                  isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary',
+                  isActive ? 'bg-primary text-primary-foreground shadow-[0_2px_8px_rgba(0,0,0,0.2)]' : 'hover:bg-secondary',
                 )
               }
             >

@@ -11,7 +11,7 @@ export function Header() {
   const { logout } = useAuth()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-card">
+    <header className="sticky top-0 z-40 border-b border-border/80 shadow-[0_2px_10px_rgba(0,0,0,0.2)]" style={{ backgroundColor: 'var(--surface-page)' }}>
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
           <div className="flex items-center gap-2">
